@@ -1,13 +1,33 @@
 <?php
 
+namespace App;
+
 define('OAUTH_CLIENT_ID', '621f59c71bc35');
 define('OAUTH_CLIENT_SECRET', '621f59c71bc36');
 define('FACEBOOK_CLIENT_ID', '1311135729390173');
 define('FACEBOOK_CLIENT_SECRET', 'fc5e25661fe961ab85d130779357541e');
 
+// function myAutoloader($class)
+// {
+//     // $class => CleanWords();
+//     $class = str_replace("App\\", "", $class);
+//     $class = str_replace("\\", "/", $class);
+//     if (file_exists($class . ".class.php")) {
+//         include $class . ".class.php";
+//     }
+// }
+
+// spl_autoload_register("App\myAutoloader");
+
+function view($view)
+{
+    // echo "views/" . $view . ".view.php";
+    return __DIR__ ."/views/" . $view . ".view.php";
+}
+
 function login()
 {
-    $queryParams= http_build_query([
+    $queryParams = http_build_query([
         'client_id' => OAUTH_CLIENT_ID,
         'redirect_uri' => 'http://localhost:8081/callback',
         'response_type' => 'code',
@@ -22,7 +42,7 @@ function login()
         </form>
     ";
     echo "<a href=\"http://localhost:8080/auth?{$queryParams}\">Login with OauthServer</a>";
-    $queryParams= http_build_query([
+    $queryParams = http_build_query([
         'client_id' => FACEBOOK_CLIENT_ID,
         'redirect_uri' => 'http://localhost:8081/fb_callback',
         'response_type' => 'code',
@@ -58,12 +78,12 @@ function callback()
     ], $specifParams));
     $response = file_get_contents("http://server:8080/token?{$queryParams}");
     $token = json_decode($response, true);
-    
+
     $context = stream_context_create([
         'http' => [
             'header' => "Authorization: Bearer {$token['access_token']}"
-            ]
-        ]);
+        ]
+    ]);
     $response = file_get_contents("http://server:8080/me", false, $context);
     $user = json_decode($response, true);
     echo "Hello {$user['lastname']} {$user['firstname']}";
@@ -74,9 +94,9 @@ function fbcallback()
     ["code" => $code, "state" => $state] = $_GET;
 
     $specifParams = [
-            'code' => $code,
-            'grant_type' => 'authorization_code',
-        ];
+        'code' => $code,
+        'grant_type' => 'authorization_code',
+    ];
 
     $queryParams = http_build_query(array_merge([
         'client_id' => FACEBOOK_CLIENT_ID,
@@ -85,21 +105,23 @@ function fbcallback()
     ], $specifParams));
     $response = file_get_contents("https://graph.facebook.com/v2.10/oauth/access_token?{$queryParams}");
     $token = json_decode($response, true);
-    
+
     $context = stream_context_create([
         'http' => [
             'header' => "Authorization: Bearer {$token['access_token']}"
-            ]
-        ]);
+        ]
+    ]);
     $response = file_get_contents("https://graph.facebook.com/v2.10/me", false, $context);
     $user = json_decode($response, true);
     echo "Hello {$user['name']}";
 }
 
+
+
 $route = $_SERVER["REQUEST_URI"];
 switch (strtok($route, "?")) {
     case '/login':
-        login();
+        require view('login');
         break;
     case '/callback':
         callback();
