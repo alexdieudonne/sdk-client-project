@@ -1,0 +1,6 @@
+{
+    "providers": [{
+        "name": "facebook",
+        "client_id": "1311135729390173"
+    }]
+}

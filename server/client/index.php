@@ -12,12 +12,17 @@ function myAutoloader($class)
     // $class => CleanWords();
     $class = str_replace("App\\", "", $class);
     $class = str_replace("\\", "/", $class);
+
     if (file_exists($class . ".class.php")) {
         include $class . ".class.php";
+    }
+    if (file_exists($class . ".php")) {
+        include $class . ".php";
     }
 }
 
 spl_autoload_register("App\myAutoloader");
+
 
 function view($view)
 {
