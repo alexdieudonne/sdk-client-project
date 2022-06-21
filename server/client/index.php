@@ -7,22 +7,22 @@ define('OAUTH_CLIENT_SECRET', '621f59c71bc36');
 define('FACEBOOK_CLIENT_ID', '1311135729390173');
 define('FACEBOOK_CLIENT_SECRET', 'fc5e25661fe961ab85d130779357541e');
 
-// function myAutoloader($class)
-// {
-//     // $class => CleanWords();
-//     $class = str_replace("App\\", "", $class);
-//     $class = str_replace("\\", "/", $class);
-//     if (file_exists($class . ".class.php")) {
-//         include $class . ".class.php";
-//     }
-// }
+function myAutoloader($class)
+{
+    // $class => CleanWords();
+    $class = str_replace("App\\", "", $class);
+    $class = str_replace("\\", "/", $class);
+    if (file_exists($class . ".class.php")) {
+        include $class . ".class.php";
+    }
+}
 
-// spl_autoload_register("App\myAutoloader");
+spl_autoload_register("App\myAutoloader");
 
 function view($view)
 {
     // echo "views/" . $view . ".view.php";
-    return __DIR__ ."/views/" . $view . ".view.php";
+    return __DIR__ . "/views/" . $view . ".view.php";
 }
 
 function login()
