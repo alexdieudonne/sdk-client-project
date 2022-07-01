@@ -1,6 +1,12 @@
 {
-    "providers": [{
-        "name": "facebook",
-        "client_id": "1311135729390173"
-    }]
+  "providers": [
+    {
+      "name": "facebook",
+      "client_id": "1311135729390173"
+    },
+    {
+      "name": "google",
+      "client_id": "290775757105-ecgqinvpe3etk9r3n6s0lk346foc99at.apps.googleusercontent.com"
+    }
+  ]
 }

@@ -2,8 +2,7 @@
 
 namespace App\Core\Providers;
 
-
-class Facebook extends \App\Core\Provider
+class Facebook implements ProviderInterface
 {
 
     private $name_provider;
@@ -25,6 +24,7 @@ class Facebook extends \App\Core\Provider
             'scope' => 'public_profile,email',
             "state" => bin2hex(random_bytes(16))
         ]);
+
         return  "https://www.facebook.com/v2.10/dialog/oauth?{$queryParams}";
     }
 
@@ -36,5 +36,15 @@ class Facebook extends \App\Core\Provider
     public function get_name()
     {
         return ucfirst($this->name_provider);
+    }
+
+    public function get_icon()
+    {
+        return '<i class="fa fa-facebook-official"></i>';
+    }
+
+    public function get_icon_class()
+    {
+        return 'btn-face m-b-20';
     }
 }

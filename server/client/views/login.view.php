@@ -40,16 +40,11 @@
                         Sign In With
                     </span>
                     <?php foreach (\App\Core\Factory::get_providers() as &$value) { ?>
-                        <a href="<? echo $value->get_url() ?>" class="btn-face m-b-20">
-                            <i class="fa fa-facebook-official"></i>
+                        <a href="<? echo $value->get_url() ?>" class="<? echo $value->get_icon_class() ?>">
+                            <? echo $value->get_icon() ?>
                             <? echo $value->get_name() ?>
                         </a>
                     <?php } ?>
-
-                    <!-- <a href="#" class="btn-google m-b-20">
-                        <img src="assets/images/icons/icon-google.png" alt="GOOGLE">
-                        Google
-                    </a> -->
 
                     <div class="p-t-31 p-b-9">
                         <span class="txt1">
