@@ -175,12 +175,8 @@ function ggcallback()
         'given_name' => $given_name, 'name' => $name,
     ] = json_decode($apiResponse, true);
 
-    if ($email_verified === true) {
-        // Redirect to our app
-        echo "Hello $name";
-    } else {
-        echo "Wrong credentials";
-    }
+    // Redirect to our app
+    echo "Hello $name";
 }
 
 
