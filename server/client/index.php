@@ -4,11 +4,17 @@ namespace App;
 
 define('OAUTH_CLIENT_ID', '621f59c71bc35');
 define('OAUTH_CLIENT_SECRET', '621f59c71bc36');
-define('FACEBOOK_CLIENT_ID', '1311135729390173');
-define('FACEBOOK_CLIENT_SECRET', 'fc5e25661fe961ab85d130779357541e');
 define("GOOGLE_CLIENT_ID", "290775757105-ecgqinvpe3etk9r3n6s0lk346foc99at.apps.googleusercontent.com");
 define("GOOGLE_CLIENT_SECRET", "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");
 
+function findObjectByName($array, $name){
+    foreach ( $array as $element ) {
+        if ( $name == $element->get_name() ) {
+            return $element;
+        }
+    }
+    return false;
+}
 
 function myAutoloader($class)
 {
@@ -33,32 +39,6 @@ function view($view)
     return __DIR__ . "/views/" . $view . ".view.php";
 }
 
-function login()
-{
-    $queryParams = http_build_query([
-        'client_id' => OAUTH_CLIENT_ID,
-        'redirect_uri' => 'http://localhost:8081/callback',
-        'response_type' => 'code',
-        'scope' => 'basic',
-        "state" => bin2hex(random_bytes(16))
-    ]);
-    echo "
-        <form action='/callback' method='post'>
-            <input type='text' name='username'/>
-            <input type='password' name='password'/>
-            <input type='submit' value='Login'/>
-        </form>
-    ";
-    echo "<a href=\"http://localhost:8080/auth?{$queryParams}\">Login with OauthServer</a>";
-    $queryParams = http_build_query([
-        'client_id' => FACEBOOK_CLIENT_ID,
-        'redirect_uri' => 'http://localhost:8081/fb_callback',
-        'response_type' => 'code',
-        'scope' => 'public_profile,email',
-        "state" => bin2hex(random_bytes(16))
-    ]);
-    echo "<a href=\"https://www.facebook.com/v2.10/dialog/oauth?{$queryParams}\">Login with Facebook</a>";
-}
 
 // Exchange code for token then get user info
 function callback()
@@ -97,31 +77,41 @@ function callback()
     echo "Hello {$user['lastname']} {$user['firstname']}";
 }
 
+
+
 function fbcallback()
 {
-    ["code" => $code, "state" => $state] = $_GET;
+    $providers= \App\Core\Factory::get_providers();
+    $facebook_provider = findObjectByName($providers, 'Facebook');
+    $secret_id = findObjectByName($providers, 'Facebook')->get_client_secret();
+    $client_id = findObjectByName($providers, 'Facebook')->get_client_id();
 
-    $specifParams = [
-        'code' => $code,
-        'grant_type' => 'authorization_code',
-    ];
+    if(isset($_GET["error"])){
+        http_response_code(401);
+        die("User doesn't allow.");
+    }else{
+        ["code" => $code, "state" => $state] = $_GET;
+        $specifParams = [
+            'code' => $code,
+            'grant_type' => 'authorization_code',
+        ];
+        $queryParams = http_build_query(array_merge([
+            'client_id' => $client_id,
+            'client_secret' => $secret_id,
+            'redirect_uri' => 'http://localhost:8081/fb_callback',
+        ], $specifParams));
 
-    $queryParams = http_build_query(array_merge([
-        'client_id' => FACEBOOK_CLIENT_ID,
-        'client_secret' => FACEBOOK_CLIENT_SECRET,
-        'redirect_uri' => 'http://localhost:8081/fb_callback',
-    ], $specifParams));
-    $response = file_get_contents("https://graph.facebook.com/v2.10/oauth/access_token?{$queryParams}");
-    $token = json_decode($response, true);
-
-    $context = stream_context_create([
-        'http' => [
-            'header' => "Authorization: Bearer {$token['access_token']}"
-        ]
-    ]);
-    $response = file_get_contents("https://graph.facebook.com/v2.10/me", false, $context);
-    $user = json_decode($response, true);
-    echo "Hello {$user['name']}";
+        $response = file_get_contents("https://graph.facebook.com/v2.10/oauth/access_token?{$queryParams}");
+        $token = json_decode($response, true);
+        $context = stream_context_create([
+            'http' => [
+                'header' => "Authorization: Bearer {$token['access_token']}"
+            ]
+        ]);
+        $response = file_get_contents("https://graph.facebook.com/v2.10/me", false, $context);
+        $user = json_decode($response, true);
+        echo "Hello {$user['name']}";
+    }
 }
 
 function ggcallback()
@@ -175,11 +165,111 @@ function ggcallback()
         'given_name' => $given_name, 'name' => $name,
     ] = json_decode($apiResponse, true);
 
-    if ($email_verified === true) {
+    if (isset($email_verified )=== true) {
         // Redirect to our app
         echo "Hello $name";
     } else {
         echo "Wrong credentials";
+    }
+}
+
+function gth_callback(){
+    $providers= \App\Core\Factory::get_providers();
+    $facebook_provider = findObjectByName($providers, 'Github');
+    $secret_id = findObjectByName($providers, 'Github')->get_client_secret();
+    $client_id = findObjectByName($providers, 'Github')->get_client_id();
+   
+    if(isset($_GET["error"])){
+        http_response_code(401);
+        die("User doesn't allow.");
+    }else{
+        ["code" => $code, "state" => $state] = $_GET;
+        $specifParams = [
+            'code' => $code,
+            'grant_type' => 'authorization_code',
+        ];
+        $queryParams = http_build_query(array_merge([
+            'client_id' => $client_id,
+            'client_secret' => $secret_id,
+            'redirect_uri' => 'http://localhost:8081/gth_callback',
+            'code' => $code,
+        ],$specifParams ));
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'header' => "Content-type: application/json\r\n" ."Accept: application/json\r\n",
+            ]
+        ]);
+        $response = file_get_contents("https://github.com/login/oauth/access_token?{$queryParams}", false, $context);
+       
+        $token = json_decode($response, true);
+        $context = stream_context_create([
+            'http'=>array(
+                'method'=>"GET",
+                'header'=>"Accept-language: en\r\n" .
+                          "Authorization: token {$token['access_token']} \r\n".
+                          "User-Agent: request"
+              )
+        ]);
+
+        $rsp = file_get_contents("https://api.github.com/user",false,$context);
+        $response = file_get_contents("https://api.github.com/user", false, $context);
+        $error = error_get_last();
+        $user = json_decode($response, true);
+        echo "Hello {$user['name']}";
+    }
+}
+
+
+function dscrd_callback(){
+    $providers= \App\Core\Factory::get_providers();
+    $facebook_provider = findObjectByName($providers, 'Discord');
+    $secret_id = findObjectByName($providers, 'Discord')->get_client_secret();
+    $client_id = findObjectByName($providers, 'Discord')->get_client_id();
+    $token_url = findObjectByName($providers, 'Discord')->url_token;
+   
+    if(isset($_GET["error"])){
+        http_response_code(401);
+        die("User doesn't allow.");
+    }else{
+        ["code" => $code, "state" => $state] = $_GET;
+
+        $queryParams = http_build_query(array_merge([
+            'client_id' => $client_id,
+            'client_secret' => $secret_id,
+            'redirect_uri' => 'http://localhost:8081/dscrd_callback',
+            'scope' => 'identify email',
+            'code' => $code,
+            'grant_type' => 'client_credentials',
+        ] ));
+
+        $context = stream_context_create([
+            'http'=>array(
+                'method'=>"POST",
+                'header'=>"Content-type: application/x-www-form-urlencoded \r\n".
+                           "Content-length: " . strlen($queryParams) . "\r\n".
+                           "User-Agent: request",
+                'content' => $queryParams
+              )
+        ]);
+        
+        $response = file_get_contents($token_url, false, $context);
+       
+        $token = json_decode($response, true);
+    
+
+        $context = stream_context_create([
+            'http'=>array(
+                'method'=>"GET",
+                'header'=>"Accept-language: en\r\n" .
+                          "Authorization: Bearer {$token['access_token']} \r\n".
+                          "User-Agent: request"
+              )
+        ]);
+        $response = file_get_contents("https://discord.com/api/users/@me",false,$context);
+        $user = json_decode($response, true);
+        echo "Hello username {$user['username']} \n"."email {$user['email']}";
     }
 }
 
@@ -198,6 +288,12 @@ switch (strtok($route, "?")) {
         break;
     case '/gg_callback':
         ggcallback();
+        break;
+    case '/gth_callback':
+        gth_callback();
+        break;
+    case '/dscrd_callback':
+        dscrd_callback();
         break;
     default:
         http_response_code(404);

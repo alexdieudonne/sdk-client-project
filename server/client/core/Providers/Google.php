@@ -5,13 +5,15 @@ namespace App\Core\Providers;
 
 class Google implements ProviderInterface
 {
-  private $name_provider;
+  private $name;
   private $client_id;
+  private $client_secret;
 
-  public function __construct($name, $client_id)
+  public function __construct($name, $client_id, $client_secret)
   {
-    $this->name_provider = $name;
-    $this->client_id = $client_id;
+      $this->name = $name;
+      $this->client_id = $client_id;
+      $this->client_secret = $client_secret;
   }
 
 
@@ -19,7 +21,7 @@ class Google implements ProviderInterface
   {
 
     $queryParams = http_build_query([
-      'client_id' => GOOGLE_CLIENT_ID,
+      'client_id' => $this->client_id,
       'redirect_uri' => 'http://localhost:8081/gg_callback',
       'response_type' => 'code',
       'scope' => 'profile',
@@ -31,6 +33,10 @@ class Google implements ProviderInterface
     return  "https://accounts.google.com/o/oauth2/auth?{$queryParams}";
   }
 
+  public function get_client_secret(){
+    return $this->client_secret;
+  }
+
   public function get_client_id()
   {
     return $this->client_id;
@@ -38,7 +44,7 @@ class Google implements ProviderInterface
 
   public function get_name()
   {
-    return ucfirst($this->name_provider);
+    return ucfirst($this->name);
   }
 
   public function get_icon()

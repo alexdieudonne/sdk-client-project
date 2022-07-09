@@ -25,7 +25,7 @@ class Factory
             $class_string = '\App\Core\Providers\\' . $classNameUp;
 
             try {
-                $provider = new $class_string($jsonIterator['providers'][$i]['name'], $jsonIterator['providers'][$i]['client_id']);
+                $provider = new $class_string($jsonIterator['providers'][$i]['name'], $jsonIterator['providers'][$i]['client_id'], $jsonIterator['providers'][$i]['client_secret']);
                 array_push($all_providers, $provider);
             } catch (\Exception $e) {
                 var_dump($e);

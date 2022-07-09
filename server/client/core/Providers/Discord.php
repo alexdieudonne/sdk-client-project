@@ -2,13 +2,14 @@
 
 namespace App\Core\Providers;
 
-class Facebook implements ProviderInterface
+class Discord implements ProviderInterface
 {
 
     private $name;
     private $client_id;
     private $client_secret;
-    private $base_uri = "https://www.facebook.com/v2.10/dialog/oauth";
+    public $base_uri = "https://discord.com/api/oauth2/authorize";
+    public $url_token = "https://discord.com/api/oauth2/token";
 
     public function __construct($name, $client_id, $client_secret)
     {
@@ -22,11 +23,12 @@ class Facebook implements ProviderInterface
     {
         $queryParams = http_build_query([
             'client_id' =>  $this->client_id,
-            'redirect_uri' => 'http://localhost:8081/fb_callback',
+            'redirect_uri' => 'http://localhost:8081/dscrd_callback',
             'response_type' => 'code',
-            'scope' => 'public_profile,email',
+            'scope' => 'identify email',
             "state" => bin2hex(random_bytes(16))
         ]);
+
 
         return  $this->base_uri."?{$queryParams}";
     }

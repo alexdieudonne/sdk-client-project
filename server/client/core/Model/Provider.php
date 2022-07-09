@@ -16,6 +16,6 @@ class Provider
         $this->url = $url;
         $this->client_id = $client_id;
 
-        return new \App\Model\Provider($this->name_provider, $this->icon, $this->url, $this->client_id);
+        return $this;
     }
 }
