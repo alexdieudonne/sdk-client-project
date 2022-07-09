@@ -2,26 +2,17 @@
 
 namespace App\Core\Providers;
 
-class Facebook implements ProviderInterface
+class Facebook extends Provider implements ProviderInterface
 {
-
-    private $name;
-    private $client_id;
-    private $client_secret;
+  
     private $base_uri = "https://www.facebook.com/v2.10/dialog/oauth";
-
-    public function __construct($name, $client_id, $client_secret)
-    {
-        $this->name = $name;
-        $this->client_id = $client_id;
-        $this->client_secret = $client_secret;
-    }
+    public  $url_token = "https://graph.facebook.com/v2.10/oauth/access_token";
 
 
     public function get_url()
     {
         $queryParams = http_build_query([
-            'client_id' =>  $this->client_id,
+            'client_id' =>  $this->get_client_id(),
             'redirect_uri' => 'http://localhost:8081/fb_callback',
             'response_type' => 'code',
             'scope' => 'public_profile,email',
@@ -32,17 +23,17 @@ class Facebook implements ProviderInterface
     }
 
     public function get_client_secret(){
-        return $this->client_secret;
+        return parent::get_client_secret();
     }
 
     public function get_client_id()
     {
-        return $this->client_id;
+        return parent::get_client_id();
     }
 
     public function get_name()
     {
-        return ucfirst($this->name);
+        return parent::get_name();
     }
 
     public function get_icon()
@@ -54,4 +45,5 @@ class Facebook implements ProviderInterface
     {
         return 'btn-face m-b-20';
     }
+
 }

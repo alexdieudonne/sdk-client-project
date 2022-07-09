@@ -2,26 +2,17 @@
 
 namespace App\Core\Providers;
 
-class Github implements ProviderInterface
+class Github extends Provider implements ProviderInterface
 {
 
-    private $name;
-    private $client_id;
-    private $client_secret;
+    public  $url_token = "https://github.com/login/oauth/access_token";
     private $base_uri = "https://github.com/login/oauth/authorize";
-
-    public function __construct($name, $client_id, $client_secret)
-    {
-        $this->name = $name;
-        $this->client_id = $client_id;
-        $this->client_secret = $client_secret;
-    }
 
 
     public function get_url()
     {
             $queryParams = http_build_query([
-                'client_id' =>  $this->client_id,
+                'client_id' =>   $this->get_client_id(),
                 'redirect_uri' => 'http://localhost:8081/gth_callback',
                 'response_type' => 'code',
                 'scope' => 'public_profile,email',
@@ -31,17 +22,17 @@ class Github implements ProviderInterface
     }
 
     public function get_client_secret(){
-        return $this->client_secret;
+        return parent::get_client_secret();
     }
 
     public function get_client_id()
     {
-        return $this->client_id;
+        return parent::get_client_id();
     }
 
     public function get_name()
     {
-        return ucfirst($this->name);
+        return parent::get_name();
     }
 
     public function get_icon()

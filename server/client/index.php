@@ -83,8 +83,10 @@ function fbcallback()
 {
     $providers= \App\Core\Factory::get_providers();
     $facebook_provider = findObjectByName($providers, 'Facebook');
-    $secret_id = findObjectByName($providers, 'Facebook')->get_client_secret();
-    $client_id = findObjectByName($providers, 'Facebook')->get_client_id();
+    $secret_id = $facebook_provider->get_client_secret();
+    $client_id = $facebook_provider->get_client_id();
+    $token_url = $facebook_provider->url_token;
+
 
     if(isset($_GET["error"])){
         http_response_code(401);
@@ -101,7 +103,7 @@ function fbcallback()
             'redirect_uri' => 'http://localhost:8081/fb_callback',
         ], $specifParams));
 
-        $response = file_get_contents("https://graph.facebook.com/v2.10/oauth/access_token?{$queryParams}");
+        $response = file_get_contents($token_url."?{$queryParams}");
         $token = json_decode($response, true);
         $context = stream_context_create([
             'http' => [
@@ -175,9 +177,11 @@ function ggcallback()
 
 function gth_callback(){
     $providers= \App\Core\Factory::get_providers();
-    $facebook_provider = findObjectByName($providers, 'Github');
-    $secret_id = findObjectByName($providers, 'Github')->get_client_secret();
-    $client_id = findObjectByName($providers, 'Github')->get_client_id();
+    $github_provider = findObjectByName($providers, 'Github');
+    $secret_id = $github_provider->get_client_secret();
+    $client_id = $github_provider->get_client_id();
+    $token_url = $github_provider->url_token;
+
    
     if(isset($_GET["error"])){
         http_response_code(401);
@@ -201,7 +205,7 @@ function gth_callback(){
                 'header' => "Content-type: application/json\r\n" ."Accept: application/json\r\n",
             ]
         ]);
-        $response = file_get_contents("https://github.com/login/oauth/access_token?{$queryParams}", false, $context);
+        $response = file_get_contents($token_url."?{$queryParams}", false, $context);
        
         $token = json_decode($response, true);
         $context = stream_context_create([
