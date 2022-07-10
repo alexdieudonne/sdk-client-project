@@ -5,10 +5,6 @@ namespace App\Core;
 
 class Factory
 {
-    public static function create()
-    {
-    }
-
     public static function get_providers()
     {
         $providersFile = "providers.json";

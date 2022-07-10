@@ -19,7 +19,6 @@ function findObjectByName($array, $name)
 
 function myAutoloader($class)
 {
-    // $class => CleanWords();
     $class = str_replace("App\\", "", $class);
     $class = str_replace("\\", "/", $class);
 
@@ -36,48 +35,8 @@ spl_autoload_register("App\myAutoloader");
 
 function view($view)
 {
-    // echo "views/" . $view . ".view.php";
     return __DIR__ . "/views/" . $view . ".view.php";
 }
-
-
-// Exchange code for token then get user info
-function callback()
-{
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        ["username" => $username, "password" => $password] = $_POST;
-        $specifParams = [
-            'username' => $username,
-            'password' => $password,
-            'grant_type' => 'password',
-        ];
-    } else {
-        ["code" => $code, "state" => $state] = $_GET;
-
-        $specifParams = [
-            'code' => $code,
-            'grant_type' => 'authorization_code',
-        ];
-    }
-
-    $queryParams = http_build_query(array_merge([
-        'client_id' => OAUTH_CLIENT_ID,
-        'client_secret' => OAUTH_CLIENT_SECRET,
-        'redirect_uri' => 'http://localhost:8081/callback',
-    ], $specifParams));
-    $response = file_get_contents("http://server:8080/token?{$queryParams}");
-    $token = json_decode($response, true);
-
-    $context = stream_context_create([
-        'http' => [
-            'header' => "Authorization: Bearer {$token['access_token']}"
-        ]
-    ]);
-    $response = file_get_contents("http://server:8080/me", false, $context);
-    $user = json_decode($response, true);
-    echo "Hello {$user['lastname']} {$user['firstname']}";
-}
-
 
 
 function fbcallback()
@@ -249,7 +208,7 @@ function dscrd_callback()
             'redirect_uri' => 'http://localhost:8081/dscrd_callback',
             'scope' => 'identify email',
             'code' => $code,
-            'grant_type' => 'client_credentials',
+            'grant_type' => 'authorization_code',
         ]));
 
         $context = stream_context_create([
@@ -288,9 +247,6 @@ $route = $_SERVER["REQUEST_URI"];
 switch (strtok($route, "?")) {
     case '/login':
         require view('login');
-        break;
-    case '/callback':
-        callback();
         break;
     case '/fb_callback':
         fbcallback();
