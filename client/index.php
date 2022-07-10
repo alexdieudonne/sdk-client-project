@@ -259,10 +259,7 @@ function dscrd_callback(){
         ]);
         
         $response = file_get_contents($token_url, false, $context);
-       
         $token = json_decode($response, true);
-    
-
         $context = stream_context_create([
             'http'=>array(
                 'method'=>"GET",
