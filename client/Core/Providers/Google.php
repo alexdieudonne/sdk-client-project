@@ -3,15 +3,17 @@
 namespace App\Core\Providers;
 
 
-class Google implements ProviderInterface
+class Google extends Provider implements ProviderInterface
 {
-  private $name_provider;
+  private $name;
   private $client_id;
+  private $client_secret;
 
-  public function __construct($name, $client_id)
+  public function __construct($name, $client_id, $client_secret)
   {
-    $this->name_provider = $name;
-    $this->client_id = $client_id;
+      $this->name = $name;
+      $this->client_id = $client_id;
+      $this->client_secret = $client_secret;
   }
 
 
@@ -19,7 +21,7 @@ class Google implements ProviderInterface
   {
 
     $queryParams = http_build_query([
-      'client_id' => GOOGLE_CLIENT_ID,
+      'client_id' => $this->client_id,
       'redirect_uri' => 'http://localhost:8081/gg_callback',
       'response_type' => 'code',
       'scope' => 'profile',
@@ -27,8 +29,11 @@ class Google implements ProviderInterface
       'include_granted_scopes' => 'true',
       'state' => bin2hex(random_bytes(16)),
     ]);
-
     return  "https://accounts.google.com/o/oauth2/auth?{$queryParams}";
+  }
+
+  public function get_client_secret(){
+    return $this->client_secret;
   }
 
   public function get_client_id()
@@ -38,7 +43,7 @@ class Google implements ProviderInterface
 
   public function get_name()
   {
-    return ucfirst($this->name_provider);
+    return ucfirst($this->name);
   }
 
   public function get_icon()
@@ -48,5 +53,21 @@ class Google implements ProviderInterface
   public function get_icon_class()
   {
     return "btn-face m-b-20";
+  }
+
+
+  public function set_name($name)
+  {
+      $this->name = $name;
+  }
+
+  public function set_client_id($client_id)
+  {
+       $this->client_id = $client_id;
+  }
+
+  public function set_client_secret($client_secret)
+  {
+       $this->client_secret = $client_secret;
   }
 }

@@ -1,0 +1,24 @@
+{
+  "providers": [
+    {
+      "name": "facebook",
+      "client_id": "557858702698484",
+      "client_secret":"b9ebba8bdc74e841a5f7f64d580ab471"
+    },
+    {
+      "name": "google",
+      "client_id": "290775757105-ecgqinvpe3etk9r3n6s0lk346foc99at.apps.googleusercontent.com",
+      "client_secret":"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"
+    },
+    {
+        "name": "github",
+        "client_id": "cb001317dc8b9659e95e",
+        "client_secret":"e27efc8a24df0773db0c78ba7af8f857bccf4cf4"
+      },
+      {
+        "name": "discord",
+        "client_id": "995380278602236004",
+        "client_secret":"CM4_D5dftA6X-6D9zVKOoKhiQBj3Objo"
+      }
+  ]
+}
